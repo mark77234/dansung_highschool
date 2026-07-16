@@ -528,7 +528,7 @@ h4 {
 .class-card {
   --accent: var(--orange);
   position: relative;
-  grid-column: span 4;
+  grid-column: span 3;
   min-height: 390px;
   overflow: hidden;
   padding: 24px;
@@ -544,8 +544,14 @@ h4 {
 
 .class-card.status-upcoming,
 .class-card.status-not-attended {
-  grid-column: span 6;
   min-height: 250px;
+}
+
+.class-card.status-upcoming { grid-column: span 6; }
+
+.class-card.status-not-attended {
+  grid-column: span 12;
+  min-height: 210px;
 }
 
 .class-card.status-upcoming {
@@ -829,6 +835,7 @@ h4 {
 }
 
 .class-hero {
+  position: relative;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -836,13 +843,38 @@ h4 {
   padding: clamp(80px, 11vw, 150px) max(24px, calc((100vw - 1280px) / 2));
   color: #fff;
   background: var(--ink);
+  isolation: isolate;
+  overflow: hidden;
 }
 
-.class-hero > div:first-child {
+.class-hero-photo,
+.class-hero-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.class-hero-photo {
+  z-index: -2;
+  object-fit: cover;
+  opacity: .5;
+  filter: saturate(.82) contrast(1.03);
+  animation: class-hero-settle 1.4s var(--ease-soft) both;
+}
+
+.class-hero-scrim {
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(19, 17, 15, .97) 0%, rgba(19, 17, 15, .8) 48%, rgba(19, 17, 15, .5) 100%),
+    linear-gradient(0deg, rgba(19, 17, 15, .5), transparent 50%);
+}
+
+.class-overview {
   max-width: 780px;
 }
 
-.class-hero > div:first-child > span {
+.class-overview > span {
   color: var(--accent);
   font-size: 12px;
   font-weight: 900;
@@ -918,6 +950,10 @@ h4 {
   align-items: start;
 }
 
+.project-grid.four-up {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .project-card {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -948,7 +984,7 @@ h4 {
 .project-cover img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform var(--motion-image) var(--ease-soft), filter 620ms var(--ease-soft);
 }
 
@@ -1032,6 +1068,29 @@ h4 {
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: -.04em;
+  overflow-wrap: anywhere;
+}
+
+.service-name {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: -7px 0 20px;
+  padding: 13px 14px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+.service-name span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+
+.service-name strong {
+  font-size: 15px;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
@@ -1873,6 +1932,8 @@ h4 {
 
 .projects-section,
 .roster-section,
+.teacher-message,
+.future-comments,
 .gallery-section,
 .creator-section {
   content-visibility: auto;
@@ -2065,6 +2126,214 @@ h4 {
   line-height: 1.6;
 }
 
+.teacher-message {
+  position: relative;
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: clamp(32px, 5vw, 70px);
+  align-items: center;
+  width: min(1280px, calc(100% - 48px));
+  margin: 120px auto 0;
+  overflow: hidden;
+  padding: clamp(60px, 8vw, 100px);
+  border-radius: 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, .15), transparent 24rem),
+    #596f5e;
+  box-shadow: 0 26px 70px rgba(40, 55, 43, .18);
+}
+
+.teacher-message::after {
+  position: absolute;
+  right: -62px;
+  bottom: -80px;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 50%;
+  content: '';
+}
+
+.teacher-message-mark {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  align-self: start;
+  border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 50%;
+  color: #dbe8dd;
+  background: rgba(255, 255, 255, .08);
+}
+
+.teacher-message-copy > span,
+.future-comments-heading > div > span {
+  color: #dbe8dd;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.teacher-message-copy h3,
+.future-comments-heading h3 {
+  margin: 10px 0 26px;
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(44px, 5.2vw, 68px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -.06em;
+}
+
+.teacher-message-copy blockquote {
+  margin: 0;
+  color: rgba(255, 255, 255, .78);
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(18px, 1.7vw, 22px);
+  line-height: 1.9;
+}
+
+.teacher-message-sign {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 27px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.teacher-message-sign svg { color: #f2b0a6; }
+
+.teacher-message-words {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 9px;
+  align-content: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.teacher-message-words span,
+.teacher-message-words strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 45px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .08);
+  font-size: 13px;
+  transform: rotate(var(--word-rotate, -2deg));
+  transition: transform 430ms var(--ease-spring), background-color 340ms var(--ease-soft);
+}
+
+.teacher-message-words span:nth-child(even) { --word-rotate: 2deg; }
+.teacher-message-words span:hover { background: rgba(255, 255, 255, .15); transform: rotate(0) translateY(-3px); }
+
+.teacher-message-words strong {
+  --word-rotate: 0deg;
+  border-color: #fff;
+  color: #596f5e;
+  background: #fff;
+}
+
+.future-comments {
+  width: min(1280px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 145px 0 10px;
+}
+
+.future-comments-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 36px;
+  margin-bottom: 42px;
+}
+
+.future-comments-heading > div > span { color: var(--accent); }
+.future-comments-heading h3 { margin-bottom: 0; }
+
+.future-comments-heading > p {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 8px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.future-comments-heading > p svg { margin-top: 4px; flex: 0 0 auto; }
+
+.comment-name-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.comment-name-grid span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 250, 242, .62);
+  font-size: 13px;
+  font-weight: 800;
+  animation: comment-name-in 520ms var(--ease-soft) var(--comment-delay) both;
+}
+
+.comment-name-grid i {
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.to-be-continued {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: 16px;
+  overflow: hidden;
+  padding: 28px 32px;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--ink);
+}
+
+.to-be-continued span {
+  color: rgba(255, 255, 255, .48);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: .16em;
+}
+
+.to-be-continued strong {
+  position: relative;
+  z-index: 1;
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(22px, 3vw, 35px);
+  font-weight: 400;
+}
+
+.to-be-continued i {
+  position: absolute;
+  right: -25px;
+  width: 150px;
+  height: 150px;
+  border: 26px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 50%;
+  animation: continued-pulse 3.8s ease-in-out infinite;
+}
+
 .creator-photo {
   padding-bottom: 104px;
   transition: transform 620ms var(--ease-soft), box-shadow 620ms var(--ease-soft);
@@ -2155,6 +2424,20 @@ h4 {
   to { opacity: 1; translate: 0 0; }
 }
 
+@keyframes class-hero-settle {
+  from { scale: 1.07; filter: saturate(.65) contrast(1); }
+  to { scale: 1; filter: saturate(.82) contrast(1.03); }
+}
+
+@keyframes comment-name-in {
+  from { opacity: 0; translate: 0 8px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes continued-pulse {
+  50% { scale: 1.08; opacity: .65; }
+}
+
 @media (max-width: 1080px) {
   .hero {
     grid-template-columns: 1fr 1fr;
@@ -2181,9 +2464,13 @@ h4 {
   .seat-image { min-height: 480px; }
 
   .class-card { grid-column: span 6; }
-  .class-card:last-child { grid-column: 4 / span 6; }
+  .class-card.status-not-attended { grid-column: span 12; }
 
   .student-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+  .teacher-message { grid-template-columns: 70px minmax(0, 1fr); }
+  .teacher-message-words { grid-column: 2; justify-content: flex-start; }
+  .comment-name-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
@@ -2347,13 +2634,14 @@ h4 {
   .class-hero p { font-size: 15px; }
 
   .class-stats {
-    width: fit-content;
+    width: 100%;
     margin-top: 34px;
   }
 
   .class-stats > div {
-    width: 104px;
+    width: auto;
     height: 92px;
+    flex: 1;
   }
 
   .class-stats strong { font-size: 34px; }
@@ -2368,6 +2656,8 @@ h4 {
   .project-grid {
     grid-template-columns: 1fr;
   }
+
+  .project-grid.four-up { grid-template-columns: 1fr; }
 
   .project-card { border-radius: 15px; }
   .project-cover { aspect-ratio: 1.18 / 1; }
@@ -2410,6 +2700,41 @@ h4 {
   }
 
   .student-list span { min-height: 43px; font-size: 12px; }
+
+  .teacher-message {
+    display: block;
+    width: calc(100% - 32px);
+    margin-top: 84px;
+    padding: 44px 23px 40px;
+    border-radius: 18px;
+  }
+
+  .teacher-message-mark {
+    width: 58px;
+    height: 58px;
+    margin-bottom: 24px;
+  }
+
+  .teacher-message-copy h3,
+  .future-comments-heading h3 { font-size: 42px; }
+  .teacher-message-copy blockquote { font-size: 17px; line-height: 1.85; }
+  .teacher-message-words { justify-content: flex-start; margin-top: 32px; }
+  .teacher-message-words span,
+  .teacher-message-words strong { min-height: 39px; padding: 0 13px; font-size: 11px; }
+
+  .future-comments {
+    width: calc(100% - 32px);
+    padding: 92px 0 0;
+  }
+
+  .future-comments-heading { display: block; margin-bottom: 28px; }
+  .future-comments-heading > p { margin-top: 18px; font-size: 13px; }
+  .comment-name-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .comment-name-grid span { min-height: 48px; padding: 0 11px; font-size: 12px; }
+  .comment-name-grid i { font-size: 8px; }
+  .to-be-continued { display: block; padding: 25px 21px; }
+  .to-be-continued strong { display: block; margin-top: 7px; font-size: 25px; }
+  .to-be-continued i { right: -65px; bottom: -65px; }
 
   .gallery-section { padding-top: 92px; }
   .gallery-heading { margin-bottom: 28px; }

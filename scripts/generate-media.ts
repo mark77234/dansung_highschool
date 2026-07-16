@@ -38,13 +38,13 @@ await sharp(logoInput)
   .png()
   .toFile(path.join(root, 'public', 'favicon.png'))
 
-const ogIds = ['21-classroom-1', '22-classroom-1', '31-classroom-4']
+const ogIds = ['11-group', '21-classroom-1', '22-classroom-1', '31-classroom-4']
 const ogPanels = await Promise.all(ogIds.map(async (id) => {
   const photo = getPhoto(id)
   if (!photo) throw new Error(`OG 사진을 찾을 수 없습니다: ${id}`)
   return sharp(path.join(root, 'res', photo.classId, photo.source))
     .rotate()
-    .resize(400, 630, { fit: 'cover' })
+    .resize(300, 630, { fit: 'cover' })
     .modulate({ saturation: 0.88, brightness: 0.87 })
     .toBuffer()
 }))
@@ -60,8 +60,9 @@ const orangeBar = await sharp({
 await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#171513' } })
   .composite([
     { input: ogPanels[0], left: 0, top: 0 },
-    { input: ogPanels[1], left: 400, top: 0 },
-    { input: ogPanels[2], left: 800, top: 0 },
+    { input: ogPanels[1], left: 300, top: 0 },
+    { input: ogPanels[2], left: 600, top: 0 },
+    { input: ogPanels[3], left: 900, top: 0 },
     { input: logoPlate, left: 54, top: 54 },
     { input: logo, left: 114, top: 74 },
     { input: orangeBar, left: 0, top: 612 },

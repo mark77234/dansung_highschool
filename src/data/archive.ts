@@ -1,5 +1,5 @@
 export type ClassId = '1-1' | '1-2' | '2-1' | '2-2' | '3-1'
-export type PublishedClassId = '2-1' | '2-2' | '3-1'
+export type PublishedClassId = '1-1' | '2-1' | '2-2' | '3-1'
 export type ClassStatus = 'published' | 'upcoming' | 'not-attended'
 export type PhotoCategory = 'project' | 'classroom' | 'seat' | 'small-memory'
 export type ProjectStatus = 'live' | 'deleted' | 'build-failed' | 'no-link'
@@ -21,6 +21,8 @@ export interface ProjectRecord {
   teamName: string
   previousName?: string
   topic: string
+  serviceName?: string
+  coreFeature?: string
   leader: string
   members?: string[]
   coverPhotoId: string
@@ -55,11 +57,12 @@ export const classes: ClassRecord[] = [
   {
     id: '1-1',
     label: '1학년 1반',
-    course: '새로운 수업을 기다리는 중',
-    status: 'upcoming',
-    kicker: '07.16 · COMING SOON',
-    summary: '7월 16일 수업 예정입니다. 수업이 끝난 뒤 프로젝트와 사진을 이 페이지에 추가합니다.',
+    course: '바이브코딩으로 게임 만들기',
+    status: 'published',
+    kicker: '07.16 · VIBE CODING',
+    summary: '오목, 밸런스 게임, 숨은 그림 찾기, 나무 탐구까지. 네 팀이 각자의 아이디어를 직접 화면으로 옮긴 1학년 1반의 바이브코딩 수업입니다.',
     accent: '#6f8f72',
+    heroPhotoId: '11-group',
   },
   {
     id: '1-2',
@@ -106,12 +109,34 @@ export const schedule: ScheduleRecord[] = [
   { date: '07.13', classId: '2-1', status: 'completed' },
   { date: '07.14', classId: '2-2', status: 'completed' },
   { date: '07.15', classId: '3-1', status: 'completed' },
-  { date: '07.16', classId: '1-1', status: 'upcoming' },
+  { date: '07.16', classId: '1-1', status: 'completed' },
 ]
 
 // ClassPilot screenshots use a free-positioned canvas. These grid coordinates
 // preserve the relative rows and groups while keeping the layout responsive.
 export const classStudents: Record<PublishedClassId, StudentSeat[]> = {
+  '1-1': [
+    { name: '윤서진', column: 1, row: 1 },
+    { name: '정시훈', column: 3, row: 1 },
+    { name: '김소율', column: 1, row: 2 },
+    { name: '이정인', column: 3, row: 2 },
+    { name: '길효승', column: 1, row: 3 },
+    { name: '정유미', column: 3, row: 5 },
+    { name: '문혜원', column: 1, row: 6 },
+    { name: '고경현', column: 3, row: 6 },
+    { name: '김남우', column: 1, row: 7 },
+    { name: '이태규', column: 3, row: 7 },
+    { name: '양희재', column: 9, row: 1 },
+    { name: '우시연', column: 8, row: 2 },
+    { name: '김민혁', column: 10, row: 2 },
+    { name: '권신영', column: 8, row: 3 },
+    { name: '이성제', column: 10, row: 3 },
+    { name: '박솔민', column: 9, row: 5 },
+    { name: '노강민', column: 8, row: 6 },
+    { name: '박지연', column: 10, row: 6 },
+    { name: '이다윤', column: 8, row: 7 },
+    { name: '심건우', column: 10, row: 7 },
+  ],
   '2-1': [
     { name: '형지안', column: 2, row: 1 },
     { name: '한승민', column: 4, row: 1 },
@@ -165,6 +190,26 @@ export const classStudents: Record<PublishedClassId, StudentSeat[]> = {
 }
 
 export const projects: ProjectRecord[] = [
+  {
+    id: 'wonji-cortis', classId: '1-1', teamName: '원지 코르티스', topic: '게임', serviceName: '오목', leader: '이다윤',
+    members: ['노강민', '이다윤', '심건우', '박지연', '박솔민'], coverPhotoId: '11-project-wonji', status: 'build-failed',
+    note: '배포 과정에서 오류가 발생해 실행 링크는 남기지 못했습니다.',
+  },
+  {
+    id: 'yanggogi', classId: '1-1', teamName: '양고기', topic: '게임', serviceName: '밸런스게임', coreFeature: '투표 기능', leader: '양희재',
+    members: ['권신영', '김민혁', '우시연', '양희재', '이성제'], coverPhotoId: '11-project-yanggogi', status: 'no-link',
+    note: '완성된 밸런스게임 화면을 사진으로 기록했습니다.',
+  },
+  {
+    id: 'hyogo', classId: '1-1', teamName: '효고', topic: '숨은 그림 찾기', serviceName: '숨은픽', leader: '길효승',
+    members: ['정시훈', '김소율', '이정인', '윤서진'], coverPhotoId: '11-project-hyogo', status: 'no-link',
+    note: '완성된 숨은 그림 찾기 게임을 사진으로 기록했습니다.',
+  },
+  {
+    id: 'leaf', classId: '1-1', teamName: '나뭇잎', topic: '나무 탐구', serviceName: '헌터헌터 (HUNTER X HUNTER)', leader: '문혜원',
+    members: ['김남우', '이태규', '고경현', '정유미'], coverPhotoId: '11-project-leaf', status: 'no-link',
+    note: '완성된 나무 탐구 게임 화면을 사진으로 기록했습니다.',
+  },
   {
     id: 'hongsi', classId: '2-1', teamName: '홍시', topic: '질병의 모든 것', leader: '이송윤',
     members: ['이송윤', '연새봄', '홍성은'], coverPhotoId: '21-project-hongsi', status: 'live',
@@ -227,6 +272,22 @@ export const projects: ProjectRecord[] = [
 ]
 
 export const photos: PhotoRecord[] = [
+  { id: '11-project-wonji', classId: '1-1', source: '1-1_원지코르티스_프로젝트사진.jpg', category: 'project', title: '오목', caption: '원지 코르티스 팀이 구현한 오목 게임', alt: '노트북 화면에 실행 중인 원지 코르티스 팀의 오목 게임' },
+  { id: '11-plan-wonji', classId: '1-1', source: '1-1_원지코르티스팀.jpg', category: 'project', title: '원지 코르티스 기획서', caption: '오목 게임의 규칙과 핵심 기능을 정리한 기록', alt: '원지 코르티스 팀이 손으로 작성한 오목 게임 기획서' },
+  { id: '11-project-yanggogi', classId: '1-1', source: '1-1_양고기_프로젝트사진.png', category: 'project', title: '밸런스게임', caption: '양고기 팀이 구현한 투표형 밸런스게임', alt: '노트북 화면에 실행 중인 양고기 팀의 밸런스게임' },
+  { id: '11-plan-yanggogi', classId: '1-1', source: '1-1_양고기팀.jpg', category: 'project', title: '양고기 기획서', caption: '밸런스게임과 투표 기능을 정리한 기록', alt: '양고기 팀이 손으로 작성한 밸런스게임 기획서' },
+  { id: '11-project-hyogo', classId: '1-1', source: '1-1_효고_프로젝트사진.jpg', category: 'project', title: '숨은픽', caption: '효고 팀이 구현한 숨은 그림 찾기 게임', alt: '노트북 화면에 실행 중인 효고 팀의 숨은 그림 찾기 게임 숨은픽' },
+  { id: '11-plan-hyogo', classId: '1-1', source: '1-1_효고팀.jpg', category: 'project', title: '효고 기획서', caption: '숨은픽의 규칙과 점수 방식을 정리한 기록', alt: '효고 팀이 손으로 작성한 숨은 그림 찾기 게임 기획서' },
+  { id: '11-project-leaf', classId: '1-1', source: '1-1_나뭇잎_프로젝트사진.jpg', category: 'project', title: '헌터헌터', caption: '나뭇잎 팀이 구현한 나무 탐구 게임', alt: '노트북 화면에 실행 중인 나뭇잎 팀의 헌터헌터 게임' },
+  { id: '11-plan-leaf', classId: '1-1', source: '1-1_나뭇잎팀.jpg', category: 'project', title: '나뭇잎 기획서', caption: '헌터헌터의 탐구 방식과 대화를 정리한 기록', alt: '나뭇잎 팀이 손으로 작성한 나무 탐구 게임 기획서' },
+  { id: '11-seat', classId: '1-1', source: '1-1_좌석배치표.jpg', category: 'seat', title: 'ClassPilot 좌석배치도', caption: '7월 16일 1학년 1반 좌석 기록', alt: '교실 전자칠판에 표시된 1학년 1반 ClassPilot 좌석배치도' },
+  { id: '11-classroom-1', classId: '1-1', source: '1-1_수업사진1.jpg', category: 'classroom', title: '첫 아이디어', caption: '팀별 주제와 서비스 방향을 나누던 시간', alt: '교실에서 모둠별로 아이디어를 이야기하는 1학년 1반 학생들' },
+  { id: '11-classroom-2', classId: '1-1', source: '1-1_수업사진2.jpg', category: 'classroom', title: '화면으로 옮기기', caption: '아이디어를 직접 구현하던 프로젝트 시간', alt: '노트북과 태블릿을 보며 프로젝트를 진행하는 1학년 1반 학생들' },
+  { id: '11-classroom-3', classId: '1-1', source: '1-1_수업사진3.jpg', category: 'classroom', title: '함께 테스트하기', caption: '완성되어 가는 게임을 함께 확인하던 순간', alt: '한 노트북 화면을 함께 보며 게임을 테스트하는 학생들' },
+  { id: '11-classroom-4', classId: '1-1', source: '1-1_수업사진4.jpg', category: 'classroom', title: '팀별 작업', caption: '대화와 코딩이 오가던 교실', alt: '모둠 책상에 둘러앉아 프로젝트를 진행하는 학생들' },
+  { id: '11-classroom-5', classId: '1-1', source: '1-1_수업사진5.jpg', category: 'classroom', title: '오늘의 교실', caption: '네 팀이 각자의 게임을 만들던 7월 16일', alt: '교실 전체에서 네 팀이 프로젝트를 진행하는 모습' },
+  { id: '11-classroom-6', classId: '1-1', source: '1-1_수업사진6.jpg', category: 'classroom', title: '마지막 집중', caption: '마무리까지 서로 도우며 완성한 수업', alt: '수업 마무리 시간에 팀별 작업을 이어가는 학생들' },
+  { id: '11-group', classId: '1-1', source: '1-1_단체사진.jpg', category: 'classroom', title: '우리, 1학년 1반', caption: '7월 16일 수업을 마치고 함께 남긴 단체사진', alt: '교실에서 다 함께 웃고 포즈를 취한 1학년 1반 학생들과 병찬 선생님' },
   { id: '21-project-oz', classId: '2-1', source: '2-1_OZ의마법사팀.png', category: 'project', title: 'OZ의 마법사', caption: '일본 여행 코스 추천 앱 기획서', alt: 'OZ의 마법사 팀이 작성한 일본 여행 앱 기획서' },
   { id: '21-seat', classId: '2-1', source: '2-1_교실학생배치도.png', category: 'seat', title: 'ClassPilot 좌석배치도', caption: '7월 13일 2학년 1반 좌석 기록', alt: 'ClassPilot 화면에 표시된 2학년 1반 학생 좌석배치도' },
   { id: '21-classroom-1', classId: '2-1', source: '2-1_수업사진1.png', category: 'classroom', title: '프로젝트 작업', caption: '팀별 웹 서비스와 게임 제작', alt: '교실에서 노트북으로 팀 프로젝트를 진행하는 2학년 1반 학생들' },

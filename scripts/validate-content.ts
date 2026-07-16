@@ -8,7 +8,7 @@ const publishedClasses = classes.filter((item) => item.status === 'published')
 const photoIds = new Set<string>()
 const sourceKeys = new Set<string>()
 
-if (photos.length !== 32) failures.push(`등록 사진 수가 32장이 아닙니다: ${photos.length}`)
+if (photos.length !== 48) failures.push(`등록 사진 수가 48장이 아닙니다: ${photos.length}`)
 
 for (const photo of photos) {
   if (photoIds.has(photo.id)) failures.push(`중복 사진 ID: ${photo.id}`)
@@ -28,7 +28,7 @@ for (const classRecord of publishedClasses) {
     failures.push(`${classRecord.id} 대표 사진이 잘못됐습니다.`)
   }
   const files = (await readdir(path.join(root, 'res', classRecord.id)))
-    .filter((name) => name.endsWith('.png'))
+    .filter((name) => /\.(png|jpe?g)$/i.test(name))
     .map((name) => `${classRecord.id}/${name.normalize('NFC')}`)
   for (const file of files) {
     if (!sourceKeys.has(file)) failures.push(`데이터에 등록되지 않은 사진: ${file}`)
@@ -41,7 +41,7 @@ for (const project of projects) {
   if (project.status !== 'live' && project.url) failures.push(`비활성 작품에 링크가 등록됨: ${project.teamName}`)
 }
 
-const expectedStudentCounts: Record<PublishedClassId, number> = { '2-1': 15, '2-2': 14, '3-1': 15 }
+const expectedStudentCounts: Record<PublishedClassId, number> = { '1-1': 20, '2-1': 15, '2-2': 14, '3-1': 15 }
 for (const [classId, expectedCount] of Object.entries(expectedStudentCounts) as Array<[PublishedClassId, number]>) {
   const students = classStudents[classId]
   if (students.length !== expectedCount) failures.push(`${classId} 학생 수가 ${expectedCount}명이 아닙니다: ${students.length}`)

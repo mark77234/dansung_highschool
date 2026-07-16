@@ -15,6 +15,8 @@ import {
   LayoutGrid,
   Maximize2,
   Minimize2,
+  PenLine,
+  Quote,
   School,
   Share2,
   Shuffle,
@@ -286,9 +288,9 @@ function App() {
 
           <div className="hero-film" aria-label="수업 사진 미리보기" data-reveal="right">
             <div className="film-label"><span>REC</span> JULY 2026</div>
-            <button className="film-photo film-photo-one" onClick={() => openPhoto(getPhoto('21-classroom-1')!)}>
-              <img src={photoAsset({ id: '21-classroom-1' })} alt="2학년 1반 코딩 수업" fetchPriority="high" />
-              <span>2학년 1반 · VIBE CODING</span>
+            <button className="film-photo film-photo-one" onClick={() => openPhoto(getPhoto('11-group')!)}>
+              <img src={photoAsset({ id: '11-group' })} alt="1학년 1반 수업 단체사진" fetchPriority="high" />
+              <span>1학년 1반 · OUR LAST DAY</span>
             </button>
             <button className="film-photo film-photo-two" onClick={() => openPhoto(getPhoto('31-classroom-4')!)}>
               <img src={photoAsset({ id: '31-classroom-4' })} alt="3학년 1반 단체 사진" />
@@ -473,16 +475,20 @@ function PublishedClass({
 }) {
   const seatPhoto = classPhotos.find((photo) => photo.category === 'seat')
   const students = classStudents[classRecord.id as PublishedClassId] ?? []
+  const heroPhoto = classRecord.heroPhotoId ? getPhoto(classRecord.heroPhotoId) : undefined
+  const isLatestClass = classRecord.id === '1-1'
   return (
     <div className="published-class" style={{ '--accent': classRecord.accent } as React.CSSProperties}>
       <header className="class-hero" data-reveal="up">
-        <div><span>{classRecord.kicker}</span><h2>{classRecord.label}</h2><p>{classRecord.summary}</p></div>
-        <div className="class-stats"><div><strong>{classProjects.length}</strong><span>TEAMS</span></div><div><strong>{classPhotos.length}</strong><span>MEMORIES</span></div></div>
+        {heroPhoto && <img className="class-hero-photo" src={photoAsset(heroPhoto, 'large')} alt="" />}
+        <div className="class-hero-scrim" aria-hidden="true" />
+        <div className="class-overview"><span>{classRecord.kicker}</span><h2>{classRecord.label}</h2><p>{classRecord.summary}</p></div>
+        <div className="class-stats"><div><strong>{classProjects.length}</strong><span>TEAMS</span></div><div><strong>{students.length}</strong><span>STUDENTS</span></div><div><strong>{classPhotos.length}</strong><span>MEMORIES</span></div></div>
       </header>
 
       <section className="projects-section" aria-labelledby="projects-title">
         <div className="subheading" data-reveal="up"><div><span>01 · PROJECTS</span><h3 id="projects-title">팀 프로젝트</h3></div><p>각 팀의 기획서와 현재 확인 가능한<br />결과물을 정리했습니다.</p></div>
-        <div className="project-grid">
+        <div className={`project-grid ${classProjects.length === 4 ? 'four-up' : ''}`}>
           {classProjects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} onOpen={onOpen} />)}
         </div>
       </section>
@@ -496,8 +502,11 @@ function PublishedClass({
 
       <ClassRoster classRecord={classRecord} students={students} />
 
+      {isLatestClass && <TeacherMessage />}
+      {isLatestClass && <FutureComments students={students} />}
+
       <section className="gallery-section" aria-labelledby="gallery-title">
-        <div className="subheading gallery-heading" data-reveal="up"><div><span>04 · PHOTO ARCHIVE</span><h3 id="gallery-title">수업 사진<br />{classPhotos.length}장</h3></div><p>사진을 누르면 크게 볼 수 있습니다.<br />북마크한 사진은 내 앨범에 저장됩니다.</p></div>
+        <div className="subheading gallery-heading" data-reveal="up"><div><span>{isLatestClass ? '06' : '04'} · PHOTO ARCHIVE</span><h3 id="gallery-title">수업 사진<br />{classPhotos.length}장</h3></div><p>사진을 누르면 크게 볼 수 있습니다.<br />북마크한 사진은 내 앨범에 저장됩니다.</p></div>
         <div className="filter-row" role="group" aria-label="사진 분류" data-reveal="up">
           {(Object.keys(categoryLabels) as Array<PhotoCategory | 'all'>).map((key) => (
             <button key={key} className={category === key ? 'active' : ''} onClick={() => onCategory(key)}>{categoryLabels[key]}</button>
@@ -506,6 +515,40 @@ function PublishedClass({
         <PhotoGrid photos={visiblePhotos} liked={liked} saved={saved} onOpen={onOpen} onLike={onLike} onSave={onSave} />
       </section>
     </div>
+  )
+}
+
+function TeacherMessage() {
+  return (
+    <section className="teacher-message" aria-labelledby="teacher-message-title" data-reveal="up">
+      <div className="teacher-message-mark" aria-hidden="true"><Quote size={34} /></div>
+      <div className="teacher-message-copy">
+        <span>04 · 병찬쌤의 후기</span>
+        <h3 id="teacher-message-title">또 보고 싶은<br />단성고 학생들에게</h3>
+        <blockquote>
+          너무 착하고 순하고, 가식 없이 순수하면서도 멋지고 예쁘고 잘생기기까지 다 하는 단성고 학생들. 짧은 수업이었지만 함께 웃고 고민하던 시간이 오래 기억에 남을 것 같아요. 벌써 또 보고 싶다!
+        </blockquote>
+        <div className="teacher-message-sign"><Heart size={18} fill="currentColor" /><span>바이브코더 병찬쌤</span></div>
+      </div>
+      <div className="teacher-message-words" aria-hidden="true">
+        <span>착하고</span><span>순수하고</span><span>멋지고</span><span>예쁘고</span><span>잘생기고</span><strong>다 하는 1반!</strong>
+      </div>
+    </section>
+  )
+}
+
+function FutureComments({ students }: { students: StudentSeat[] }) {
+  return (
+    <section className="future-comments" aria-labelledby="future-comments-title" data-reveal="up">
+      <div className="future-comments-heading">
+        <div><span>05 · ONE BY ONE</span><h3 id="future-comments-title">스무 명에게 남길<br />스무 개의 한마디</h3></div>
+        <p><PenLine size={18} /> 학생 한 명 한 명에게 전할<br />병찬쌤의 코멘트를 준비하고 있어요.</p>
+      </div>
+      <div className="comment-name-grid" aria-label="코멘트가 추가될 학생 명단">
+        {students.map((student, index) => <span key={student.name} style={{ '--comment-delay': `${index * 28}ms` } as React.CSSProperties}>{student.name}<i>준비 중</i></span>)}
+      </div>
+      <div className="to-be-continued"><span>TO BE CONTINUED</span><strong>다음 이야기는 계속됩니다…</strong><i /></div>
+    </section>
   )
 }
 
@@ -556,7 +599,7 @@ function ProjectCard({ project, index, onOpen }: { project: ProjectRecord; index
   const statusLabel = project.status === 'live' ? 'LIVE NOW' : project.status === 'deleted' ? '삭제된 프로젝트' : project.status === 'build-failed' ? '빌드 실패' : '사진으로 남은 기록'
   return (
     <article className="project-card" data-reveal={index % 2 ? 'right' : 'left'} style={{ '--reveal-delay': `${(index % 3) * 70}ms` } as React.CSSProperties}>
-      <button className="project-cover" onClick={() => onOpen(cover)} aria-label={`${project.teamName} 기획서 크게 보기`}>
+      <button className="project-cover" onClick={() => onOpen(cover)} aria-label={`${project.serviceName ?? project.teamName} 프로젝트 사진 크게 보기`}>
         <img src={photoAsset(cover)} alt={cover.alt} loading="lazy" />
         <span className={`project-badge status-${project.status}`}>{project.status === 'live' && <i />} {statusLabel}</span>
         <span className="project-zoom"><Maximize2 /></span>
@@ -565,7 +608,8 @@ function ProjectCard({ project, index, onOpen }: { project: ProjectRecord; index
         <span className="project-topic">{project.topic}</span>
         <h4>{project.teamName}</h4>
         {project.previousName && <p className="rename-note">{project.previousName} → 지금의 이름</p>}
-        <dl><div><dt>팀장</dt><dd>{project.leader}</dd></div>{project.members && <div><dt>팀원</dt><dd>{project.members.join(' · ')}</dd></div>}</dl>
+        {project.serviceName && <p className="service-name"><span>서비스</span><strong>{project.serviceName}</strong></p>}
+        <dl><div><dt>팀장</dt><dd>{project.leader}</dd></div>{project.members && <div><dt>팀원</dt><dd>{project.members.join(' · ')}</dd></div>}{project.coreFeature && <div><dt>핵심</dt><dd>{project.coreFeature}</dd></div>}</dl>
         {project.status === 'live' && project.url ? (
           <a className="project-link" href={project.url} target="_blank" rel="noreferrer">작품 보러 가기 <ExternalLink size={18} /></a>
         ) : <div className="project-archive"><ImageIcon size={17} /><span>{project.note ?? '기획서 사진으로 남은 프로젝트'}</span></div>}
