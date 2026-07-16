@@ -65,15 +65,6 @@ export const classes: ClassRecord[] = [
     heroPhotoId: '11-group',
   },
   {
-    id: '1-2',
-    label: '1학년 2반',
-    course: '수업 미진행',
-    status: 'not-attended',
-    kicker: 'WE MISSED YOU',
-    summary: '일정상 이번 수업을 진행하지 못해 기록이 없습니다. 다음 기회에는 함께할 수 있기를 바랍니다.',
-    accent: '#7e77a8',
-  },
-  {
     id: '2-1',
     label: '2학년 1반',
     course: '바이브코딩 수업',
@@ -102,6 +93,15 @@ export const classes: ClassRecord[] = [
     summary: 'ASMR, 패션, 맛집 추천 웹 서비스를 만들었습니다. 프로젝트 기획서와 수업 중 남긴 사진을 함께 정리했습니다.',
     accent: '#b34f59',
     heroPhotoId: '31-classroom-4',
+  },
+  {
+    id: '1-2',
+    label: '1학년 2반',
+    course: '수업 미진행',
+    status: 'not-attended',
+    kicker: 'WE MISSED YOU',
+    summary: '일정상 이번 수업을 진행하지 못해 기록이 없습니다. 다음 기회에는 함께할 수 있기를 바랍니다.',
+    accent: '#7e77a8',
   },
 ]
 

@@ -476,7 +476,6 @@ function PublishedClass({
   const seatPhoto = classPhotos.find((photo) => photo.category === 'seat')
   const students = classStudents[classRecord.id as PublishedClassId] ?? []
   const heroPhoto = classRecord.heroPhotoId ? getPhoto(classRecord.heroPhotoId) : undefined
-  const isLatestClass = classRecord.id === '1-1'
   return (
     <div className="published-class" style={{ '--accent': classRecord.accent } as React.CSSProperties}>
       <header className="class-hero" data-reveal="up">
@@ -502,11 +501,11 @@ function PublishedClass({
 
       <ClassRoster classRecord={classRecord} students={students} />
 
-      {isLatestClass && <TeacherMessage />}
-      {isLatestClass && <FutureComments students={students} />}
+      <TeacherMessage />
+      <FutureComments students={students} />
 
       <section className="gallery-section" aria-labelledby="gallery-title">
-        <div className="subheading gallery-heading" data-reveal="up"><div><span>{isLatestClass ? '06' : '04'} · PHOTO ARCHIVE</span><h3 id="gallery-title">수업 사진<br />{classPhotos.length}장</h3></div><p>사진을 누르면 크게 볼 수 있습니다.<br />북마크한 사진은 내 앨범에 저장됩니다.</p></div>
+        <div className="subheading gallery-heading" data-reveal="up"><div><span>06 · PHOTO ARCHIVE</span><h3 id="gallery-title">수업 사진<br />{classPhotos.length}장</h3></div><p>사진을 누르면 크게 볼 수 있습니다.<br />북마크한 사진은 내 앨범에 저장됩니다.</p></div>
         <div className="filter-row" role="group" aria-label="사진 분류" data-reveal="up">
           {(Object.keys(categoryLabels) as Array<PhotoCategory | 'all'>).map((key) => (
             <button key={key} className={category === key ? 'active' : ''} onClick={() => onCategory(key)}>{categoryLabels[key]}</button>
@@ -531,7 +530,7 @@ function TeacherMessage() {
         <div className="teacher-message-sign"><Heart size={18} fill="currentColor" /><span>바이브코더 병찬쌤</span></div>
       </div>
       <div className="teacher-message-words" aria-hidden="true">
-        <span>착하고</span><span>순수하고</span><span>멋지고</span><span>예쁘고</span><span>잘생기고</span><strong>다 하는 1반!</strong>
+        <span>착하고</span><span>순수하고</span><span>멋지고</span><span>예쁘고</span><span>잘생기고</span><strong>다 하는 단성고!</strong>
       </div>
     </section>
   )
@@ -541,7 +540,7 @@ function FutureComments({ students }: { students: StudentSeat[] }) {
   return (
     <section className="future-comments" aria-labelledby="future-comments-title" data-reveal="up">
       <div className="future-comments-heading">
-        <div><span>05 · ONE BY ONE</span><h3 id="future-comments-title">스무 명에게 남길<br />스무 개의 한마디</h3></div>
+        <div><span>05 · ONE BY ONE</span><h3 id="future-comments-title">모든 학생에게 남길<br />각자의 한마디</h3></div>
         <p><PenLine size={18} /> 학생 한 명 한 명에게 전할<br />병찬쌤의 코멘트를 준비하고 있어요.</p>
       </div>
       <div className="comment-name-grid" aria-label="코멘트가 추가될 학생 명단">
