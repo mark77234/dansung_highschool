@@ -159,12 +159,12 @@ export const classStudents: Record<PublishedClassId, StudentSeat[]> = {
     { name: '황세호', column: 11, row: 1 },
     { name: '조윤찬', column: 2, row: 2 },
     { name: '김하율', column: 5, row: 2 },
-    { name: '퀸민지', column: 10, row: 2 },
+    { name: '권민지', column: 10, row: 2 },
     { name: '김민권', column: 12, row: 2 },
     { name: '하지윤', column: 7, row: 4 },
     { name: '백진욱', column: 9, row: 4 },
     { name: '강세영', column: 3, row: 5 },
-    { name: '권세룡', column: 10, row: 5 },
+    { name: '권서형', column: 10, row: 5 },
     { name: '강지유', column: 10, row: 6 },
     { name: '백승화', column: 2, row: 7 },
     { name: '김교린', column: 5, row: 7 },
@@ -192,12 +192,12 @@ export const classStudents: Record<PublishedClassId, StudentSeat[]> = {
 export const projects: ProjectRecord[] = [
   {
     id: 'wonji-cortis', classId: '1-1', teamName: '원지 코르티스', topic: '게임', serviceName: '오목', leader: '이다윤',
-    members: ['노강민', '이다윤', '심건우', '박지연', '박솔민'], coverPhotoId: '11-project-wonji', status: 'build-failed',
+    members: ['노강민', '심건우', '박지연', '박솔민'], coverPhotoId: '11-project-wonji', status: 'build-failed',
     note: '배포 과정에서 오류가 발생해 실행 링크는 남기지 못했습니다.',
   },
   {
     id: 'yanggogi', classId: '1-1', teamName: '양고기', topic: '게임', serviceName: '밸런스게임', coreFeature: '투표 기능', leader: '양희재',
-    members: ['권신영', '김민혁', '우시연', '양희재', '이성제'], coverPhotoId: '11-project-yanggogi', status: 'no-link',
+    members: ['권신영', '김민혁', '우시연', '이성제'], coverPhotoId: '11-project-yanggogi', status: 'no-link',
     note: '완성된 밸런스게임 화면을 사진으로 기록했습니다.',
   },
   {
@@ -212,16 +212,16 @@ export const projects: ProjectRecord[] = [
   },
   {
     id: 'hongsi', classId: '2-1', teamName: '홍시', topic: '질병의 모든 것', leader: '이송윤',
-    members: ['이송윤', '연새봄', '홍성은'], coverPhotoId: '21-project-hongsi', status: 'live',
+    members: ['연새봄', '홍성은'], coverPhotoId: '21-project-hongsi', status: 'live',
     url: 'https://drug-dictionary--a90861323.replit.app/',
   },
   {
     id: 'oz', classId: '2-1', teamName: 'OZ의 마법사', topic: '일본 여행 코스를 짜주는 앱', leader: '김유진',
-    coverPhotoId: '21-project-oz', status: 'live', url: 'https://japan-trip-coach--eugenekim4444.replit.app/',
+    members: ['임나영', '오세찬', '김민호'], coverPhotoId: '21-project-oz', status: 'live', url: 'https://japan-trip-coach--eugenekim4444.replit.app/',
   },
   {
-    id: 'sparkle', classId: '2-1', teamName: '스파클', topic: '체스 게임', leader: '박천용',
-    members: ['한승민', '박천용', '형지안'], coverPhotoId: '21-project-sparkle', status: 'live',
+    id: 'sparkle', classId: '2-1', teamName: '스파클', topic: '체스 게임', serviceName: '지안체스', leader: '박천용',
+    members: ['한승민', '형지안'], coverPhotoId: '21-project-sparkle', status: 'live',
     url: 'https://chess-board-logic--hjkl95922.replit.app/',
   },
   {
@@ -231,32 +231,32 @@ export const projects: ProjectRecord[] = [
   },
   {
     id: 'ganghwa-seyoung', classId: '2-2', teamName: '강화세영', topic: '피아노 타일', leader: '김교린',
-    members: ['백승화', '김교린', '강세영'], coverPhotoId: '22-project-piano', status: 'deleted',
+    members: ['강세영', '백승화'], coverPhotoId: '22-project-piano', status: 'deleted',
     note: '프로젝트가 삭제되어 현재는 기획서만 확인할 수 있습니다.',
   },
   {
-    id: 'ssangdi', classId: '2-2', teamName: '쌍디무하자', topic: '루미큐브 한글 버전', leader: '데돈니(문세정)',
-    members: ['지유', '서형'], coverPhotoId: '22-project-rummikub', status: 'build-failed',
+    id: 'ssangdi', classId: '2-2', teamName: '쌍디무하자', topic: '루미큐브 한글 버전', leader: '문세정',
+    members: ['강지유', '권서형'], coverPhotoId: '22-project-rummikub', status: 'build-failed',
     note: '빌드 실패로 현재 실행할 수 없습니다.',
   },
   {
-    id: 'black-bear', classId: '2-2', teamName: '검은 흑곰', topic: '스도쿠', leader: '백진욱',
-    members: ['백진욱', '하지윤'], coverPhotoId: '22-project-sudoku', status: 'build-failed',
+    id: 'black-bear', classId: '2-2', teamName: '검은흑곰', topic: '스도쿠', leader: '백진욱',
+    members: ['하지윤'], coverPhotoId: '22-project-sudoku', status: 'build-failed',
     note: '빌드 실패로 현재 실행할 수 없습니다.',
   },
   {
     id: 'eyebrow', classId: '2-2', teamName: '회장 반장 팀장 눈썹색은 된장 김하율이 있는 팀', topic: 'FPS 게임', leader: '김하율',
-    members: ['김민재', '김하율', '조윤찬'], coverPhotoId: '22-project-fps', status: 'deleted',
+    members: ['김민재', '조윤찬'], coverPhotoId: '22-project-fps', status: 'deleted',
     note: '프로젝트가 삭제되어 현재는 기획서만 확인할 수 있습니다.',
   },
   {
-    id: 'nexon', classId: '2-2', teamName: '넥슨', topic: '게임(롤)', leader: '퀸민지',
-    members: ['권(퀸)민지', '김민권', '황세호'], coverPhotoId: '22-project-nexon', status: 'build-failed',
+    id: 'nexon', classId: '2-2', teamName: '넥슨', topic: '게임(롤)', leader: '권민지',
+    members: ['김민권', '황세호'], coverPhotoId: '22-project-nexon', status: 'build-failed',
     note: '빌드 실패로 실행 링크가 남아 있지 않습니다.',
   },
   {
-    id: 'nugo', classId: '3-1', teamName: '누고', topic: '스트레스 해소 ASMR', leader: '정수환',
-    members: ['유원준', '김누리한', '노정원', '정수환', '박진우'], coverPhotoId: '31-project-nugo', status: 'live',
+    id: 'nugo', classId: '3-1', teamName: '누고', topic: '스트레스 해소 ASMR', serviceName: '왁뿌', leader: '정수환',
+    members: ['김누리한', '노정원', '박진우', '유원준'], coverPhotoId: '31-project-nugo', status: 'live',
     url: 'https://nugo-teal.vercel.app/',
   },
   {
@@ -265,8 +265,8 @@ export const projects: ProjectRecord[] = [
     url: 'https://jego-brown.vercel.app/#home',
   },
   {
-    id: 'gago', classId: '3-1', teamName: '가고', previousName: '가고 있는 가고팀', topic: '맛집 추천', leader: '가고(오가현)',
-    members: ['김다희', '오가현', '이예희', '조민서'], coverPhotoId: '31-project-gago', status: 'live',
+    id: 'gago', classId: '3-1', teamName: '가고', previousName: '가고 있는 가고팀', topic: '가고 싶은 곳 추천', serviceName: '여기가고', leader: '오가현',
+    members: ['김다희', '이예희', '조민서'], coverPhotoId: '31-project-gago', status: 'live',
     url: 'https://gago-eta.vercel.app/',
   },
 ]

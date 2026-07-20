@@ -8,12 +8,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Crown,
   ExternalLink,
   Heart,
   Image as ImageIcon,
   Instagram,
   LayoutGrid,
   Maximize2,
+  MessageCircleMore,
   Minimize2,
   PenLine,
   Quote,
@@ -21,6 +23,7 @@ import {
   Share2,
   Shuffle,
   Sparkles,
+  Trophy,
   Users,
   X,
 } from 'lucide-react'
@@ -43,8 +46,16 @@ import {
   type PublishedClassId,
   type StudentSeat,
 } from './data/archive'
+import {
+  getClassCommentary,
+  getStudentComments,
+  studentComments,
+  type StudentCommentRecord,
+  type StudentRating,
+} from './data/comments'
 
 const STORAGE_KEY = 'dansung-memory:v1'
+const HERO_PREVIEW_STORAGE_KEY = 'dansung-memory:hero-preview'
 
 interface LocalMemory {
   likedPhotoIds: string[]
@@ -53,6 +64,7 @@ interface LocalMemory {
 }
 
 const validClassIds = new Set(classes.map((item) => item.id))
+const commentUrlPattern = /(https?:\/\/[^\s]+)/g
 
 function readMemory(): LocalMemory {
   try {
@@ -72,6 +84,31 @@ const queryPhoto = getPhoto(query.get('photo') ?? '')
 const queryClass = query.get('class')
 const initialClass = queryPhoto?.classId ?? (queryClass && validClassIds.has(queryClass as ClassId) ? queryClass as ClassId : null)
 
+function pickHeroPreview(classId: PublishedClassId): PhotoRecord {
+  const candidates = photos.filter((photo) => (
+    photo.classId === classId && (photo.category === 'classroom' || photo.category === 'small-memory')
+  ))
+  const fallback = photos.find((photo) => photo.classId === classId)!
+
+  try {
+    const storageKey = `${HERO_PREVIEW_STORAGE_KEY}:${classId}`
+    const previousId = sessionStorage.getItem(storageKey)
+    const available = candidates.length > 1
+      ? candidates.filter((photo) => photo.id !== previousId)
+      : candidates
+    const selected = available[Math.floor(Math.random() * available.length)] ?? fallback
+    sessionStorage.setItem(storageKey, selected.id)
+    return selected
+  } catch {
+    return candidates[Math.floor(Math.random() * candidates.length)] ?? fallback
+  }
+}
+
+const heroPreviews = {
+  first: pickHeroPreview('1-1'),
+  second: pickHeroPreview('3-1'),
+}
+
 function App() {
   const initialMemory = useMemo(readMemory, [])
   const [selectedClassId, setSelectedClassId] = useState<ClassId | null>(initialClass)
@@ -80,12 +117,16 @@ function App() {
   const [saved, setSaved] = useState(() => new Set(initialMemory.savedPhotoIds))
   const [showAlbum, setShowAlbum] = useState(false)
   const [activePhotoId, setActivePhotoId] = useState<string | null>(queryPhoto?.id ?? null)
+  const [activeStudentCommentId, setActiveStudentCommentId] = useState<string | null>(null)
   const [zoomed, setZoomed] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const contentRef = useRef<HTMLElement>(null)
   const classesRef = useRef<HTMLElement>(null)
   const scrollProgressRef = useRef<HTMLDivElement>(null)
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const photoCloseButtonRef = useRef<HTMLButtonElement>(null)
+  const commentCloseButtonRef = useRef<HTMLButtonElement>(null)
+  const commentPanelRef = useRef<HTMLElement>(null)
+  const commentTriggerRef = useRef<HTMLButtonElement | null>(null)
   const touchStart = useRef<number | null>(null)
 
   const activeClass = classes.find((item) => item.id === selectedClassId) ?? null
@@ -98,6 +139,22 @@ function App() {
   const viewerPool = showAlbum ? savedPhotos : classPhotos.length ? classPhotos : photos
   const activePhoto = activePhotoId ? getPhoto(activePhotoId) : undefined
   const activeIndex = activePhoto ? viewerPool.findIndex((photo) => photo.id === activePhoto.id) : -1
+  const studentCommentPool = activeClass?.status === 'published'
+    ? getStudentComments(activeClass.id as PublishedClassId).filter((item) => item.status === 'published')
+    : []
+  const activeStudentComment = activeStudentCommentId
+    ? studentComments.find((item) => item.id === activeStudentCommentId && item.status === 'published')
+    : undefined
+  const activeStudentCommentIndex = activeStudentComment
+    ? studentCommentPool.findIndex((item) => item.id === activeStudentComment.id)
+    : -1
+  const activeStudentProject = activeStudentComment?.projectId
+    ? projects.find((project) => project.id === activeStudentComment.projectId)
+    : undefined
+  const activeStudentCommentary = activeStudentComment ? getClassCommentary(activeStudentComment.classId) : undefined
+  const activeStudentMvpLabels = activeStudentCommentary?.mvps
+    .filter((mvp) => mvp.studentNames.includes(activeStudentComment?.name ?? ''))
+    .map((mvp) => mvp.label) ?? []
 
   useEffect(() => {
     const payload: LocalMemory = {
@@ -126,7 +183,7 @@ function App() {
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     setZoomed(false)
-    window.setTimeout(() => closeButtonRef.current?.focus(), 20)
+    window.setTimeout(() => photoCloseButtonRef.current?.focus(), 20)
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setActivePhotoId(null)
@@ -139,6 +196,38 @@ function App() {
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [activePhoto?.id, viewerPool.length])
+
+  useEffect(() => {
+    if (!activeStudentComment) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.setTimeout(() => commentCloseButtonRef.current?.focus(), 20)
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeStudentComment()
+      if (event.key === 'ArrowLeft') stepStudentComment(-1)
+      if (event.key === 'ArrowRight') stepStudentComment(1)
+      if (event.key !== 'Tab') return
+
+      const focusable = Array.from(commentPanelRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]') ?? [])
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [activeStudentComment?.id, studentCommentPool.length])
 
   useEffect(() => {
     if (!toast) return
@@ -185,6 +274,7 @@ function App() {
   }, [selectedClassId, showAlbum, category, visiblePhotos.length])
 
   function chooseClass(classRecord: ClassRecord) {
+    setActiveStudentCommentId(null)
     setSelectedClassId(classRecord.id)
     setShowAlbum(false)
     setCategory('all')
@@ -194,6 +284,7 @@ function App() {
   function showMyAlbum() {
     setShowAlbum(true)
     setActivePhotoId(null)
+    setActiveStudentCommentId(null)
     window.setTimeout(() => contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
 
@@ -210,14 +301,34 @@ function App() {
   }
 
   function openPhoto(photo: PhotoRecord) {
+    setActiveStudentCommentId(null)
     setSelectedClassId(photo.classId)
     setActivePhotoId(photo.id)
+  }
+
+  function openStudentComment(comment: StudentCommentRecord, trigger: HTMLButtonElement) {
+    commentTriggerRef.current = trigger
+    setActivePhotoId(null)
+    setActiveStudentCommentId(comment.id)
+  }
+
+  function closeStudentComment() {
+    setActiveStudentCommentId(null)
+    window.setTimeout(() => commentTriggerRef.current?.focus(), 20)
+  }
+
+  function stepStudentComment(direction: -1 | 1) {
+    if (!studentCommentPool.length) return
+    const currentIndex = Math.max(0, studentCommentPool.findIndex((item) => item.id === activeStudentCommentId))
+    const nextIndex = (currentIndex + direction + studentCommentPool.length) % studentCommentPool.length
+    setActiveStudentCommentId(studentCommentPool[nextIndex].id)
   }
 
   function randomMemory() {
     const candidates = activePhoto ? photos.filter((photo) => photo.id !== activePhoto.id) : photos
     const randomPhoto = candidates[Math.floor(Math.random() * candidates.length)]
     setShowAlbum(false)
+    setActiveStudentCommentId(null)
     setSelectedClassId(randomPhoto.classId)
     setActivePhotoId(randomPhoto.id)
   }
@@ -288,13 +399,23 @@ function App() {
 
           <div className="hero-film" aria-label="수업 사진 미리보기" data-reveal="right">
             <div className="film-label"><span>REC</span> JULY 2026</div>
-            <button className="film-photo film-photo-one" onClick={() => openPhoto(getPhoto('11-group')!)}>
-              <img src={photoAsset({ id: '11-group' })} alt="1학년 1반 수업 단체사진" fetchPriority="high" />
-              <span>1학년 1반 · OUR LAST DAY</span>
+            <button
+              className="film-photo film-photo-one"
+              data-photo-id={heroPreviews.first.id}
+              onClick={() => openPhoto(heroPreviews.first)}
+              aria-label={`1학년 1반 ${heroPreviews.first.title} 사진 크게 보기`}
+            >
+              <img src={photoAsset(heroPreviews.first)} alt={heroPreviews.first.alt} fetchPriority="high" />
+              <span>1학년 1반 · {heroPreviews.first.title}</span>
             </button>
-            <button className="film-photo film-photo-two" onClick={() => openPhoto(getPhoto('31-classroom-4')!)}>
-              <img src={photoAsset({ id: '31-classroom-4' })} alt="3학년 1반 단체 사진" />
-              <span>3학년 1반 · CLASS PHOTO</span>
+            <button
+              className="film-photo film-photo-two"
+              data-photo-id={heroPreviews.second.id}
+              onClick={() => openPhoto(heroPreviews.second)}
+              aria-label={`3학년 1반 ${heroPreviews.second.title} 사진 크게 보기`}
+            >
+              <img src={photoAsset(heroPreviews.second)} alt={heroPreviews.second.alt} />
+              <span>3학년 1반 · {heroPreviews.second.title}</span>
             </button>
             <div className="tape tape-one" />
             <div className="scribble">2026 코딩<br />수업 기록 ↗</div>
@@ -356,6 +477,7 @@ function App() {
                 saved={saved}
                 onCategory={setCategory}
                 onOpen={openPhoto}
+                onOpenStudent={openStudentComment}
                 onLike={(id) => toggleSet(id, setLiked, '좋아요를 남겼어요')}
                 onSave={(id) => toggleSet(id, setSaved, '내 앨범에 담았어요')}
               />
@@ -393,7 +515,7 @@ function App() {
             <div>
               <button onClick={() => setZoomed((value) => !value)} aria-label={zoomed ? '사진 축소' : '사진 확대'}>{zoomed ? <Minimize2 /> : <Maximize2 />}</button>
               <button onClick={sharePhoto} aria-label="사진 공유"><Share2 /></button>
-              <button ref={closeButtonRef} onClick={() => setActivePhotoId(null)} aria-label="사진 닫기"><X /></button>
+              <button ref={photoCloseButtonRef} onClick={() => setActivePhotoId(null)} aria-label="사진 닫기"><X /></button>
             </div>
           </div>
           <div
@@ -412,6 +534,54 @@ function App() {
               <button className={saved.has(activePhoto.id) ? 'active' : ''} onClick={() => toggleSet(activePhoto.id, setSaved, '내 앨범에 담았어요')} aria-label="내 앨범에 저장"><Bookmark fill={saved.has(activePhoto.id) ? 'currentColor' : 'none'} /></button>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeStudentComment && (
+        <div className="student-comment-dialog" role="dialog" aria-modal="true" aria-labelledby="student-comment-dialog-title">
+          <div className="student-comment-backdrop" onClick={closeStudentComment} />
+          <article className="student-comment-panel" ref={commentPanelRef}>
+            <div className="student-comment-toolbar">
+              <span>{Math.max(1, activeStudentCommentIndex + 1)} / {studentCommentPool.length}</span>
+              <div>
+                <button onClick={() => stepStudentComment(-1)} aria-label="이전 학생 코멘트"><ChevronLeft /></button>
+                <button onClick={() => stepStudentComment(1)} aria-label="다음 학생 코멘트"><ChevronRight /></button>
+                <button ref={commentCloseButtonRef} onClick={closeStudentComment} aria-label="학생 코멘트 닫기"><X /></button>
+              </div>
+            </div>
+            <div className="student-comment-scroll">
+              <div className="student-comment-identity">
+                <div className="student-comment-avatar" aria-hidden="true">{activeStudentComment.name.slice(0, 1)}</div>
+                <div>
+                  <span>{getClassLabel(activeStudentComment.classId)} · {activeStudentProject?.teamName ?? '프로젝트 팀'}</span>
+                  <h2 id="student-comment-dialog-title">{activeStudentComment.name}</h2>
+                  <p>{activeStudentComment.role}</p>
+                </div>
+              </div>
+              <div className="student-comment-badges">
+                {activeStudentComment.isLeader && <span className="leader"><Crown /> 팀장</span>}
+                {activeStudentMvpLabels.map((label) => <span className="mvp" key={label}><Trophy /> {label}</span>)}
+                {activeStudentProject?.serviceName && <span>{activeStudentProject.serviceName}</span>}
+              </div>
+              <div className="student-comment-rating">
+                <RatingStars rating={activeStudentComment.rating!} />
+                <strong>{activeStudentComment.rating} / 5</strong>
+              </div>
+              <div className="student-comment-letter">
+                <span><MessageCircleMore /> 병찬쌤이 남긴 한마디</span>
+                <ol>
+                  {activeStudentComment.notes.map((note, index) => (
+                    <li key={`${activeStudentComment.id}-${index}`}><i>{String(index + 1).padStart(2, '0')}</i><CommentNote text={note} /></li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+            <div className="student-comment-footer">
+              <button onClick={() => stepStudentComment(-1)}><ChevronLeft /> 이전 학생</button>
+              <span>한 명 한 명, 모두 기억할게요.</span>
+              <button onClick={() => stepStudentComment(1)}>다음 학생 <ChevronRight /></button>
+            </div>
+          </article>
         </div>
       )}
 
@@ -459,7 +629,7 @@ function PlaceholderClass({ classRecord, onChoose }: { classRecord: ClassRecord;
 }
 
 function PublishedClass({
-  classRecord, classPhotos, classProjects, visiblePhotos, category, liked, saved, onCategory, onOpen, onLike, onSave,
+  classRecord, classPhotos, classProjects, visiblePhotos, category, liked, saved, onCategory, onOpen, onOpenStudent, onLike, onSave,
 }: {
   classRecord: ClassRecord
   classPhotos: PhotoRecord[]
@@ -470,6 +640,7 @@ function PublishedClass({
   saved: Set<string>
   onCategory: (category: PhotoCategory | 'all') => void
   onOpen: (photo: PhotoRecord) => void
+  onOpenStudent: (comment: StudentCommentRecord, trigger: HTMLButtonElement) => void
   onLike: (id: string) => void
   onSave: (id: string) => void
 }) {
@@ -490,6 +661,7 @@ function PublishedClass({
         <div className={`project-grid ${classProjects.length === 4 ? 'four-up' : ''}`}>
           {classProjects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} onOpen={onOpen} />)}
         </div>
+        <p className="project-link-notice"><ExternalLink size={15} /> 배포된 작품은 체험 기간이나 호스팅 상태에 따라 접속이 제한될 수 있습니다.</p>
       </section>
 
       {seatPhoto && (
@@ -502,7 +674,7 @@ function PublishedClass({
       <ClassRoster classRecord={classRecord} students={students} />
 
       <TeacherMessage />
-      <FutureComments students={students} />
+      <StudentComments classRecord={classRecord} students={students} classProjects={classProjects} onOpen={onOpenStudent} />
 
       <section className="gallery-section" aria-labelledby="gallery-title">
         <div className="subheading gallery-heading" data-reveal="up"><div><span>06 · PHOTO ARCHIVE</span><h3 id="gallery-title">수업 사진<br />{classPhotos.length}장</h3></div><p>사진을 누르면 크게 볼 수 있습니다.<br />북마크한 사진은 내 앨범에 저장됩니다.</p></div>
@@ -536,17 +708,141 @@ function TeacherMessage() {
   )
 }
 
-function FutureComments({ students }: { students: StudentSeat[] }) {
+function RatingStars({ rating }: { rating: StudentRating }) {
+  return (
+    <span className="rating-stars" role="img" aria-label={`5점 만점에 ${rating}점`}>
+      {[0, 1, 2, 3, 4].map((index) => (
+        <span key={index} style={{ '--star-fill': Math.min(1, Math.max(0, rating - index)) } as React.CSSProperties}>★</span>
+      ))}
+    </span>
+  )
+}
+
+function CommentNote({ text }: { text: string }) {
+  return (
+    <p>
+      {text.split(commentUrlPattern).map((part, index) => part.startsWith('http')
+        ? <a href={part} target="_blank" rel="noreferrer" key={`${part}-${index}`}>{part}</a>
+        : part)}
+    </p>
+  )
+}
+
+function StudentCommentCard({
+  comment, isMvp, index, onOpen,
+}: {
+  comment: StudentCommentRecord
+  isMvp: boolean
+  index: number
+  onOpen: (comment: StudentCommentRecord, trigger: HTMLButtonElement) => void
+}) {
+  if (comment.status === 'pending') {
+    return (
+      <article className="student-comment-card pending" style={{ '--comment-delay': `${index * 34}ms` } as React.CSSProperties}>
+        <span className="student-comment-card-avatar">{comment.name.slice(0, 1)}</span>
+        <div><span>코멘트 준비 중</span><h5>{comment.name}</h5><p>조금만 기다려 주세요.</p></div>
+        {isMvp && <i className="student-card-mvp"><Trophy /> MVP</i>}
+      </article>
+    )
+  }
+
+  return (
+    <button
+      className="student-comment-card"
+      onClick={(event) => onOpen(comment, event.currentTarget)}
+      style={{ '--comment-delay': `${index * 34}ms` } as React.CSSProperties}
+      aria-label={`${comment.name} 학생 코멘트 전체 읽기`}
+    >
+      <span className="student-comment-card-avatar">{comment.name.slice(0, 1)}</span>
+      <div className="student-comment-card-copy">
+        <span>{comment.role}</span>
+        <h5>{comment.name}</h5>
+        <div><RatingStars rating={comment.rating!} /><strong>{comment.rating}</strong></div>
+      </div>
+      <div className="student-comment-card-badges">
+        {comment.isLeader && <i className="leader"><Crown /> 팀장</i>}
+        {isMvp && <i className="mvp"><Trophy /> MVP</i>}
+      </div>
+      <span className="student-comment-card-open"><MessageCircleMore /><b>{comment.notes.length}</b><ArrowRight /></span>
+    </button>
+  )
+}
+
+function StudentComments({
+  classRecord, students, classProjects, onOpen,
+}: {
+  classRecord: ClassRecord
+  students: StudentSeat[]
+  classProjects: ProjectRecord[]
+  onOpen: (comment: StudentCommentRecord, trigger: HTMLButtonElement) => void
+}) {
+  const comments = getStudentComments(classRecord.id as PublishedClassId)
+  const commentary = getClassCommentary(classRecord.id as PublishedClassId)
+  const publishedCount = comments.filter((item) => item.status === 'published').length
+  const pendingComments = comments.filter((item) => item.status === 'pending')
+  const mvpNames = new Set(commentary?.mvps.flatMap((mvp) => mvp.studentNames) ?? [])
+
   return (
     <section className="future-comments" aria-labelledby="future-comments-title" data-reveal="up">
       <div className="future-comments-heading">
-        <div><span>05 · ONE BY ONE</span><h3 id="future-comments-title">모든 학생에게 남길<br />각자의 한마디</h3></div>
-        <p><PenLine size={18} /> 학생 한 명 한 명에게 전할<br />병찬쌤의 코멘트를 준비하고 있어요.</p>
+        <div><span>05 · ONE BY ONE</span><h3 id="future-comments-title">병찬쌤이 남긴<br />한마디</h3></div>
+        <p><PenLine size={18} /> 함께 만든 프로젝트와 수업 속 모습을<br />한 명 한 명에게 편지처럼 남겼어요.</p>
       </div>
-      <div className="comment-name-grid" aria-label="코멘트가 추가될 학생 명단">
-        {students.map((student, index) => <span key={student.name} style={{ '--comment-delay': `${index * 28}ms` } as React.CSSProperties}>{student.name}<i>준비 중</i></span>)}
+
+      <div className="student-comment-teams">
+        {classProjects.map((project, teamIndex) => {
+          const teamComments = comments.filter((item) => item.projectId === project.id)
+          if (!teamComments.length) return null
+          return (
+            <section className="student-comment-team" key={project.id} aria-labelledby={`comment-team-${project.id}`} data-reveal={teamIndex % 2 ? 'right' : 'left'}>
+              <header>
+                <span>{String(teamIndex + 1).padStart(2, '0')} · TEAM</span>
+                <div><h4 id={`comment-team-${project.id}`}>{project.teamName}</h4><p>{project.serviceName ?? project.topic} · {teamComments.length}명</p></div>
+              </header>
+              <div className="student-comment-grid">
+                {teamComments.map((comment, index) => (
+                  <StudentCommentCard key={comment.id} comment={comment} isMvp={mvpNames.has(comment.name)} index={index} onOpen={onOpen} />
+                ))}
+              </div>
+            </section>
+          )
+        })}
       </div>
-      <div className="to-be-continued"><span>TO BE CONTINUED</span><strong>다음 이야기는 계속됩니다…</strong><i /></div>
+
+      {pendingComments.length > 0 && (
+        <section className="pending-comment-group" aria-labelledby="pending-comment-title">
+          <div><span>STILL WRITING</span><h4 id="pending-comment-title">코멘트 준비 중</h4></div>
+          <div className="student-comment-grid pending-grid">
+            {pendingComments.map((comment, index) => (
+              <StudentCommentCard key={comment.id} comment={comment} isMvp={mvpNames.has(comment.name)} index={index} onOpen={onOpen} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {commentary && (
+        <div className="class-commentary" data-reveal="up">
+          <div className="class-review-card">
+            <span>병찬쌤의 {classRecord.label} 총평</span>
+            <h4>함께한 하루를<br />돌아보며</h4>
+            <ul>{commentary.review.map((review) => <li key={review}>{review}</li>)}</ul>
+          </div>
+          {commentary.mvps.length > 0 && (
+            <div className="class-mvp-card">
+              <span><Trophy /> CLASS MVP</span>
+              <h4>이 반의<br />빛나는 이름</h4>
+              <div>{commentary.mvps.map((mvp) => <strong key={mvp.label}>{mvp.label}</strong>)}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className={`comment-completion ${publishedCount === students.length ? 'complete' : ''}`}>
+        <span>{publishedCount === students.length ? 'ALL LETTERS ARRIVED' : 'TO BE CONTINUED'}</span>
+        <strong>{publishedCount === students.length ? '모든 한마디가 도착했어요' : `${publishedCount}/${students.length}명 작성 완료`}</strong>
+        <p>{publishedCount === students.length ? '한 명 한 명의 반짝였던 순간을 오래 기억할게요.' : `${students.length - publishedCount}명의 이야기도 계속 준비하고 있어요.`}</p>
+        <i />
+      </div>
     </section>
   )
 }

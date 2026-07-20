@@ -996,6 +996,19 @@ h4 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.project-link-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 20px 0 0 auto;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.project-link-notice svg { flex: 0 0 auto; color: var(--accent); }
+
 .project-card {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2309,41 +2322,354 @@ h4 {
 
 .future-comments-heading > p svg { margin-top: 4px; flex: 0 0 auto; }
 
-.comment-name-grid {
+.student-comment-teams {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 9px;
+  gap: 78px;
 }
 
-.comment-name-grid span {
+.student-comment-team > header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 56px;
-  padding: 0 15px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: rgba(255, 250, 242, .62);
-  font-size: 13px;
+  align-items: flex-start;
+  gap: clamp(24px, 4vw, 54px);
+  margin-bottom: 22px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.student-comment-team > header > span {
+  min-width: 75px;
+  padding-top: 7px;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
   font-weight: 800;
-  animation: comment-name-in 520ms var(--ease-soft) var(--comment-delay) both;
+  letter-spacing: .12em;
 }
 
-.comment-name-grid i {
+.student-comment-team > header h4,
+.pending-comment-group h4 {
+  margin: 0;
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -.05em;
+  overflow-wrap: anywhere;
+}
+
+.student-comment-team > header p {
+  margin: 7px 0 0;
   color: var(--muted);
-  font-size: 9px;
-  font-style: normal;
-  font-weight: 750;
+  font-size: 12px;
 }
 
-.to-be-continued {
+.student-comment-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.student-comment-card {
   position: relative;
   display: flex;
+  min-width: 0;
+  min-height: 205px;
+  overflow: hidden;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: rgba(255, 250, 242, .72);
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(46, 34, 24, .045);
+  animation: comment-name-in 520ms var(--ease-soft) var(--comment-delay) both;
+  transition: transform 440ms var(--ease-soft), border-color 340ms var(--ease-soft), box-shadow 440ms var(--ease-soft), background-color 340ms var(--ease-soft);
+}
+
+.student-comment-card::after {
+  position: absolute;
+  right: -34px;
+  bottom: -52px;
+  width: 120px;
+  height: 120px;
+  border: 18px solid color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  content: '';
+  transition: scale 480ms var(--ease-soft), border-color 340ms var(--ease-soft);
+}
+
+.student-comment-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
+  background: #fff;
+  transform: translateY(-4px);
+  box-shadow: 0 22px 46px rgba(46, 34, 24, .1);
+}
+
+.student-comment-card:hover::after {
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent);
+  scale: 1.08;
+}
+
+.student-comment-card-avatar,
+.student-comment-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--accent);
+  font-family: 'Gowun Batang', serif;
+  font-size: 18px;
+}
+
+.student-comment-card-copy {
+  margin-top: 20px;
+}
+
+.student-comment-card-copy > span,
+.student-comment-card.pending > div > span {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.student-comment-card h5 {
+  margin: 4px 0 7px;
+  font-family: 'Gowun Batang', serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.05em;
+}
+
+.student-comment-card-copy > div,
+.student-comment-rating {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  margin-top: 16px;
+  gap: 8px;
+}
+
+.student-comment-card-copy strong {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.rating-stars {
+  display: inline-flex;
+  gap: 1px;
+  line-height: 1;
+}
+
+.rating-stars > span {
+  color: transparent;
+  background: linear-gradient(90deg, #e09a31 calc(var(--star-fill) * 100%), rgba(40, 31, 24, .12) 0);
+  background-clip: text;
+  font-size: 13px;
+  -webkit-background-clip: text;
+}
+
+.student-comment-card-badges {
+  position: absolute;
+  top: 17px;
+  right: 16px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(100% - 78px);
+}
+
+.student-comment-card-badges i,
+.student-card-mvp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 7px;
+  border-radius: 99px;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.student-comment-card-badges svg,
+.student-card-mvp svg {
+  width: 10px;
+  height: 10px;
+}
+
+.student-comment-card-badges .leader {
+  color: #69522d;
+  background: #f3e6c9;
+}
+
+.student-comment-card-badges .mvp,
+.student-card-mvp {
+  color: #fff;
+  background: #d57935;
+}
+
+.student-comment-card-open {
+  position: absolute;
+  right: 16px;
+  bottom: 15px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+}
+
+.student-comment-card-open svg { width: 15px; height: 15px; }
+.student-comment-card-open svg:last-child { margin-left: 2px; }
+.student-comment-card-open b { font-size: 10px; }
+
+.student-comment-card.pending {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  min-height: 116px;
+  gap: 14px;
+  align-items: center;
+  border-style: dashed;
+  background: rgba(126, 119, 168, .045);
+  cursor: default;
+  box-shadow: none;
+  opacity: .68;
+}
+
+.student-comment-card.pending:hover { transform: none; box-shadow: none; }
+.student-comment-card.pending::after { display: none; }
+.student-comment-card.pending h5 { font-size: 23px; }
+.student-comment-card.pending p { margin: 0; color: var(--muted); font-size: 10px; }
+.student-comment-card.pending .student-card-mvp { position: absolute; top: 14px; right: 14px; }
+
+.pending-comment-group {
+  margin-top: 74px;
+  padding: 28px;
+  border: 1px dashed rgba(62, 50, 89, .2);
+  border-radius: 18px;
+  background: rgba(126, 119, 168, .035);
+}
+
+.pending-comment-group > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.pending-comment-group > div:first-child span {
+  color: #7e77a8;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.pending-comment-group h4 { font-size: 30px; }
+
+.class-commentary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(310px, .8fr);
+  gap: 14px;
+  margin-top: 86px;
+}
+
+.class-commentary > :only-child { grid-column: 1 / -1; }
+
+.class-review-card,
+.class-mvp-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(32px, 5vw, 56px);
+  border-radius: 20px;
+}
+
+.class-review-card {
+  color: #fff;
+  background: var(--ink);
+}
+
+.class-review-card > span,
+.class-mvp-card > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: color-mix(in srgb, var(--accent) 70%, #fff);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.class-review-card h4,
+.class-mvp-card h4 {
+  margin: 10px 0 28px;
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(35px, 4.4vw, 54px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.055em;
+}
+
+.class-review-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.class-review-card li {
+  position: relative;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, .7);
+  line-height: 1.8;
+}
+
+.class-review-card li::before {
+  position: absolute;
+  top: .72em;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  content: '';
+}
+
+.class-mvp-card {
+  color: #4b361d;
+  background: linear-gradient(145deg, #f6e5bd, #ead09c);
+}
+
+.class-mvp-card::after {
+  position: absolute;
+  right: -55px;
+  bottom: -55px;
+  width: 180px;
+  height: 180px;
+  border: 30px solid rgba(255, 255, 255, .28);
+  border-radius: 50%;
+  content: '';
+}
+
+.class-mvp-card > span { color: #9b6228; }
+.class-mvp-card > span svg { width: 15px; height: 15px; }
+.class-mvp-card > div { position: relative; z-index: 1; display: grid; gap: 7px; }
+.class-mvp-card strong { font-size: 14px; font-weight: 850; }
+
+.comment-completion {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px 30px;
+  margin-top: 14px;
   overflow: hidden;
   padding: 28px 32px;
   border-radius: 14px;
@@ -2351,14 +2677,14 @@ h4 {
   background: var(--ink);
 }
 
-.to-be-continued span {
+.comment-completion span {
   color: rgba(255, 255, 255, .48);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10px;
   letter-spacing: .16em;
 }
 
-.to-be-continued strong {
+.comment-completion strong {
   position: relative;
   z-index: 1;
   font-family: 'Gowun Batang', serif;
@@ -2366,7 +2692,17 @@ h4 {
   font-weight: 400;
 }
 
-.to-be-continued i {
+.comment-completion p {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: rgba(255, 255, 255, .54);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.comment-completion i {
   position: absolute;
   right: -25px;
   width: 150px;
@@ -2375,6 +2711,214 @@ h4 {
   border-radius: 50%;
   animation: continued-pulse 3.8s ease-in-out infinite;
 }
+
+.comment-completion.complete {
+  background: #596f5e;
+}
+
+.student-comment-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  animation: fade-in 180ms both;
+}
+
+.student-comment-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(19, 16, 13, .82);
+  backdrop-filter: blur(14px);
+}
+
+.student-comment-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 62px minmax(0, 1fr) 66px;
+  width: min(760px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 22px;
+  background: var(--paper-light);
+  box-shadow: 0 38px 110px rgba(0, 0, 0, .35);
+  animation: comment-panel-in 420ms var(--ease-spring) both;
+}
+
+.student-comment-toolbar,
+.student-comment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px 8px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.student-comment-toolbar > span {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+
+.student-comment-toolbar > div { display: flex; gap: 3px; }
+
+.student-comment-toolbar button,
+.student-comment-footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+.student-comment-toolbar button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.student-comment-toolbar button:hover { background: rgba(33, 29, 25, .07); }
+.student-comment-toolbar svg { width: 20px; height: 20px; }
+
+.student-comment-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(26px, 5vw, 48px);
+}
+
+.student-comment-identity {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.student-comment-avatar {
+  width: 68px;
+  height: 68px;
+  font-size: 26px;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.student-comment-identity > div:last-child > span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.student-comment-identity h2 {
+  margin: 2px 0 3px;
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(42px, 6vw, 62px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.07em;
+}
+
+.student-comment-identity p { margin: 0; color: var(--muted); font-size: 12px; }
+
+.student-comment-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.student-comment-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--muted);
+  background: #fff;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.student-comment-badges svg { width: 12px; height: 12px; }
+.student-comment-badges .leader { color: #69522d; border-color: #e7d3a8; background: #f7edd8; }
+.student-comment-badges .mvp { color: #a44d21; border-color: #e4b58d; background: #fff0e3; }
+
+.student-comment-rating {
+  margin-top: 25px;
+  padding: 17px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .65);
+}
+
+.student-comment-rating .rating-stars > span { font-size: 23px; }
+.student-comment-rating strong { margin-left: auto; font-family: 'Gowun Batang', serif; font-size: 20px; font-weight: 400; }
+
+.student-comment-letter {
+  margin-top: 34px;
+}
+
+.student-comment-letter > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.student-comment-letter > span svg { width: 17px; height: 17px; }
+.student-comment-letter ol { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+
+.student-comment-letter li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(45, 34, 24, .045);
+}
+
+.student-comment-letter li i {
+  padding-top: 3px;
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.student-comment-letter li p { margin: 0; font-size: 14px; line-height: 1.78; overflow-wrap: anywhere; }
+.student-comment-letter a { color: var(--accent); overflow-wrap: anywhere; }
+
+.student-comment-footer {
+  padding: 10px 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+  background: #fff;
+}
+
+.student-comment-footer button {
+  gap: 5px;
+  min-height: 42px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.student-comment-footer button:hover { color: var(--accent); }
+.student-comment-footer button svg { width: 16px; height: 16px; }
+.student-comment-footer > span { color: var(--muted); font-family: 'Gowun Batang', serif; font-size: 13px; }
 
 .creator-photo {
   padding-bottom: 104px;
@@ -2476,6 +3020,11 @@ h4 {
   to { opacity: 1; translate: 0 0; }
 }
 
+@keyframes comment-panel-in {
+  from { opacity: 0; translate: 0 24px; scale: .985; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
 @keyframes continued-pulse {
   50% { scale: 1.08; opacity: .65; }
 }
@@ -2512,7 +3061,7 @@ h4 {
 
   .teacher-message { grid-template-columns: 70px minmax(0, 1fr); }
   .teacher-message-words { grid-column: 2; justify-content: flex-start; }
-  .comment-name-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .student-comment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
@@ -2791,12 +3340,30 @@ h4 {
 
   .future-comments-heading { display: block; margin-bottom: 28px; }
   .future-comments-heading > p { margin-top: 18px; font-size: 13px; }
-  .comment-name-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-  .comment-name-grid span { min-height: 48px; padding: 0 11px; font-size: 12px; }
-  .comment-name-grid i { font-size: 8px; }
-  .to-be-continued { display: block; padding: 25px 21px; }
-  .to-be-continued strong { display: block; margin-top: 7px; font-size: 25px; }
-  .to-be-continued i { right: -65px; bottom: -65px; }
+  .student-comment-teams { gap: 56px; }
+  .student-comment-team > header { display: block; padding-top: 18px; }
+  .student-comment-team > header > span { display: block; margin-bottom: 9px; padding: 0; }
+  .student-comment-team > header h4 { font-size: 33px; }
+  .student-comment-grid { grid-template-columns: 1fr; gap: 9px; }
+  .student-comment-card { min-height: 174px; padding: 16px; border-radius: 14px; }
+  .student-comment-card-copy { margin-top: 16px; }
+  .student-comment-card h5 { font-size: 27px; }
+  .student-comment-card.pending { min-height: 104px; }
+  .pending-comment-group { margin-top: 56px; padding: 20px 14px 14px; border-radius: 15px; }
+  .pending-comment-group > div:first-child { display: block; margin: 0 4px 14px; }
+  .pending-comment-group h4 { margin-top: 5px; font-size: 27px; }
+  .class-commentary { grid-template-columns: 1fr; gap: 10px; margin-top: 62px; }
+  .class-review-card,
+  .class-mvp-card { padding: 32px 24px; border-radius: 17px; }
+  .class-review-card h4,
+  .class-mvp-card h4 { font-size: 38px; }
+  .class-review-card li { font-size: 13px; }
+  .comment-completion { display: block; padding: 25px 21px; }
+  .comment-completion strong { display: block; margin-top: 7px; font-size: 25px; }
+  .comment-completion p { max-width: 230px; margin-top: 8px; text-align: left; }
+  .comment-completion i { right: -65px; bottom: -65px; }
+
+  .project-link-notice { align-items: flex-start; width: 100%; margin-top: 15px; }
 
   .gallery-section { padding-top: 92px; }
   .gallery-heading { margin-bottom: 28px; }
@@ -2895,6 +3462,37 @@ h4 {
   .lightbox-caption h2 { font-size: 21px; }
   .lightbox-caption p { max-width: 220px; font-size: 11px; }
   .lightbox-actions button { width: 43px; height: 43px; }
+
+  .student-comment-dialog {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .student-comment-panel {
+    width: 100%;
+    max-height: 90dvh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 22px 22px 0 0;
+    grid-template-rows: 58px minmax(0, 1fr) 62px;
+  }
+
+  .student-comment-toolbar { padding: 7px 8px 7px 17px; }
+  .student-comment-toolbar button { width: 42px; height: 42px; }
+  .student-comment-scroll { padding: 25px 18px 32px; }
+  .student-comment-avatar { width: 58px; height: 58px; font-size: 22px; }
+  .student-comment-identity { gap: 14px; }
+  .student-comment-identity h2 { font-size: 44px; }
+  .student-comment-identity > div:last-child > span { font-size: 9px; }
+  .student-comment-badges { margin-top: 20px; }
+  .student-comment-rating { margin-top: 20px; padding: 14px; }
+  .student-comment-rating .rating-stars > span { font-size: 20px; }
+  .student-comment-letter { margin-top: 27px; }
+  .student-comment-letter li { grid-template-columns: 27px minmax(0, 1fr); gap: 8px; padding: 14px 12px; }
+  .student-comment-letter li p { font-size: 13px; }
+  .student-comment-footer { padding: 8px 10px; }
+  .student-comment-footer > span { display: none; }
   .toast { bottom: calc(84px + env(safe-area-inset-bottom)); white-space: nowrap; }
 }
 
